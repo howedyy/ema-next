@@ -1,9 +1,24 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Award, Users, Sparkles } from 'lucide-react';
 
 export default function About() {
+    const [content, setContent] = useState<any>(null);
+
+    useEffect(() => {
+        fetch('/api/content')
+            .then(res => res.json())
+            .then(data => setContent(data.about));
+    }, []);
+
+    if (!content) return <div className="h-screen bg-white animate-pulse"></div>;
+
+    const iconMap: any = { Award, Users, Sparkles };
+
     return (
-        <section id="about" className="min-h-screen py-20 bg-white dark:bg-luxury-surface transition-colors duration-500 overflow-hidden">
+        <section id="about" className="py-24 bg-white dark:bg-luxury-surface transition-colors duration-500 overflow-hidden">
             <div className="container mx-auto px-6">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     {/* Image Area */}
@@ -21,9 +36,10 @@ export default function About() {
                             </div>
                             {/* Elegant floating badge */}
                             <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl border border-primary-100 dark:border-gray-700 animate-float translate-y-[-10px]">
-                                <div className="text-primary-600 dark:text-accent-400 font-serif text-2xl font-bold">Est. 2021</div>
+                                <div className="text-primary-600 dark:text-accent-400 font-serif text-2xl font-bold">Est. {content.established || '2021'}</div>
                                 <div className="text-gray-500 dark:text-gray-400 text-sm">Luxury & Care</div>
                             </div>
+
                         </div>
                     </div>
 
@@ -31,49 +47,34 @@ export default function About() {
                     {/* Text Content */}
                     <div className="space-y-8 order-1 md:order-2">
                         <div className="space-y-4">
-                            <h2 className="text-5xl md:text-7xl font-serif font-bold bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent leading-tight">
-                                About Us
+                            <h2 className="text-5xl font-serif font-bold text-gray-900 dark:text-white leading-tight">
+                                {content.title}
                             </h2>
-                            <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed font-light">
-                                Welcome to <span className="font-semibold text-primary-600 dark:text-accent-400">EMA Beauty Lounge</span>.
-                                We established our sanctuary in 2021 with a simple vision: to create a haven where luxury meets holistic wellness.
-                            </p>
+                            <div className="h-1 w-20 bg-primary-500 rounded-full"></div>
                         </div>
 
-                        <div className="space-y-6 text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                            <p>
-                                From state-of-the-art beauty services to serene wellness offerings, we provide a
-                                tranquil environment for relaxation and rejuvenation. Every detail of our lounge
-                                is designed to embark you on a journey of self-care and tranquility.
-                            </p>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                            {content.content}
+                        </p>
 
-                            <div className="relative border-l-4 border-primary-500 pl-8 py-6 bg-primary-50/50 dark:bg-gray-800/50 rounded-r-2xl transform hover:translate-x-2 transition-transform duration-300">
-                                <h3 className="text-2xl font-serif font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                    <Sparkles className="w-6 h-6 text-primary-500" />
-                                    Why Choose Us
-                                </h3>
-                                <p className="text-gray-600 dark:text-gray-400 italic">
-                                    "Whether you're looking to unwind after a long day or pamper yourself for a special occasion,
-                                    our lounge is the perfect destination for rejuvenation and self-discovery."
-                                </p>
-                            </div>
+                        <div className="bg-primary-50 dark:bg-gray-800/50 p-8 rounded-3xl border-l-4 border-primary-500 italic text-gray-700 dark:text-gray-300">
+                            {content.highlight}
                         </div>
 
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-4 pt-8">
-                            {[
-                                { label: 'Years Experience', value: '5+', icon: Award },
-                                { label: 'Happy Clients', value: '1K+', icon: Users },
-                                { label: 'Luxury Services', value: '10+', icon: Sparkles },
-                            ].map((stat, i) => (
-                                <div key={i} className="text-center p-6 bg-white dark:bg-gray-800/80 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-                                    <div className="flex justify-center mb-2">
-                                        <stat.icon className="w-5 h-5 text-primary-500 opacity-50" />
+                        <div className="grid grid-cols-3 gap-6 pt-4">
+                            {content.stats && content.stats.map((stat: any, index: number) => {
+
+                                const Icon = iconMap[stat.icon] || Award;
+                                return (
+                                    <div key={index} className="text-center group">
+                                        <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl shadow-md flex items-center justify-center mx-auto mb-3 text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-all duration-300">
+                                            <Icon size={24} />
+                                        </div>
+                                        <div className="text-2xl font-bold dark:text-white">{stat.value}</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest">{stat.label}</div>
                                     </div>
-                                    <div className="text-3xl font-bold text-primary-600 dark:text-accent-400 font-serif">{stat.value}</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">{stat.label}</div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

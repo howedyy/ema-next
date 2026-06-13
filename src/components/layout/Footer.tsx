@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
 
@@ -13,8 +16,25 @@ const TwitterIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
 );
 
-
 export default function Footer() {
+    const [contact, setContact] = useState<any>(null);
+
+    useEffect(() => {
+        fetch('/api/content')
+            .then(res => res.json())
+            .then(data => setContact(data.contact));
+    }, []);
+
+    const socialLinks = contact ? [
+        { Icon: FacebookIcon, url: contact.facebook },
+        { Icon: InstagramIcon, url: contact.instagram },
+        { Icon: TwitterIcon, url: contact.twitter },
+    ] : [
+        { Icon: FacebookIcon, url: '#' },
+        { Icon: InstagramIcon, url: '#' },
+        { Icon: TwitterIcon, url: '#' },
+    ];
+
     return (
         <footer className="bg-gray-900 text-gray-300 py-20 border-t border-gray-800">
             <div className="container mx-auto px-6">
@@ -28,9 +48,9 @@ export default function Footer() {
                             Elevating beauty into an art form since 2021. Your sanctuary for luxury, tranquility, and expert care.
                         </p>
                         <div className="flex gap-4">
-                            {[FacebookIcon, InstagramIcon, TwitterIcon].map((Icon, idx) => (
-                                <a key={idx} href="#" className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all transition-colors duration-300">
-                                    <Icon />
+                            {socialLinks.map((social, idx) => (
+                                <a key={idx} href={social.url} className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all transition-colors duration-300">
+                                    <social.Icon />
                                 </a>
                             ))}
                         </div>

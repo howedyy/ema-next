@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "title": "EMA Beauty Lounge ",
+    "subtitle": "As you step into our salon, you'll be greeted by a warm and welcoming atmosphere, infused with soothing aromas and music.",
+    "button1": "Contact Us",
+    "button2": "Our Services",
+    "image": "/FB_IMG_(3).jpg"
+  },
+  "about": {
+    "title": "About Us ",
+    "content": "Welcome to EMA Beauty Lounge. We established our sanctuary in 2021 with a simple vision: to create a haven where luxury meets holistic wellness. ",
+    "highlight": "Whether you're looking to unwind after a long day or pamper yourself for a special occasion, our lounge is the perfect destination for rejuvenation and self-discovery.",
+    "stats": [
+      {
+        "label": "Years Experience",
+        "value": "5+",
+        "icon": "Award"
+      },
+      {
+        "label": "Happy Clients",
+        "value": "1K+",
+        "icon": "Users"
+      },
+      {
+        "label": "Luxury Services",
+        "value": "10+",
+        "icon": "Sparkles"
+      }
+    ]
+  },
+  "services": [
+    {
+      "id": "lashes",
+      "title": "Lashes",
+      "price": "Starting from $50",
+      "description": "Enhance your natural beauty with our professional lash extensions and treatments.",
+      "image": "/FB_IMG_(4).jpg"
+    },
+    {
+      "id": "nails",
+      "title": "Nails",
+      "price": "Starting from $35",
+      "description": "Indulge in luxurious manicures and pedicures with our expert nail care services.",
+      "image": "/FB_IMG_(5).jpg"
+    },
+    {
+      "id": "skincare",
+      "title": "Skincare",
+      "price": "Starting from $65",
+      "description": "Rejuvenate your skin with our premium facial treatments and skincare solutions.",
+      "image": "/FB_IMG_(3).jpg"
+    }
+  ],
+  "contact": {
+    "address": "123 Beauty Street, Luxury District",
+    "phone": "+201118196999",
+    "email": "hello@emabeautylounge.com",
+    "hours": "Mon - Sat: 9:00 AM - 8:00 PM",
+    "facebook": "#",
+    "instagram": "#",
+    "twitter": "#"
+  }
+}
