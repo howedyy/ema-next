@@ -1,39 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, RefreshCw } from 'lucide-react';
+
 import ServiceModal from '../ui/ServiceModal';
 
-const services = [
-    {
-        id: 'lashes',
-        title: 'Lashes',
-        price: 'Starting from $50',
-        description: 'Enhance your natural beauty with our professional lash extensions and treatments. We use premium materials to ensure long-lasting results and maximum comfort.',
-        image: '/FB_IMG_(4).jpg',
-    },
-    {
-        id: 'nails',
-        title: 'Nails',
-        price: 'Starting from $35',
-        description: 'Indulge in luxurious manicures and pedicures with our expert nail care services. From classic styles to modern nail art, we cover all your desires.',
-        image: '/FB_IMG_(5).jpg',
-    },
-    {
-        id: 'skincare',
-        title: 'Skincare',
-        price: 'Starting from $65',
-        description: 'Rejuvenate your skin with our premium facial treatments and skincare solutions. Our specialists use advanced techniques to bring out your natural glow.',
-        image: '/FB_IMG_(3).jpg',
-    }
-];
-
 export default function Services() {
-    const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
+    const [services, setServices] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedService, setSelectedService] = useState<any | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const openModal = (service: typeof services[0]) => {
+    useEffect(() => {
+        fetch('/api/content')
+            .then(res => res.json())
+            .then(data => {
+                if (data && Array.isArray(data.services)) {
+                    setServices(data.services);
+                }
+                setIsLoading(false);
+            })
+            .catch(() => setIsLoading(false));
+    }, []);
+
+    const openModal = (service: any) => {
         setSelectedService(service);
         setIsModalOpen(true);
     };
@@ -54,43 +45,50 @@ export default function Services() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-10">
-                    {services.map((service, idx) => (
-                        <div
-                            key={service.id}
-                            className="group bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-3 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700"
-                        >
+                {isLoading ? (
+                    <div className="flex justify-center py-20">
+                        <RefreshCw className="w-10 h-10 animate-spin text-primary-500" />
+
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-3 gap-10">
+                        {services.map((service) => (
                             <div
-                                className="relative h-56 overflow-hidden cursor-pointer"
-                                onClick={() => openModal(service)}
+                                key={service.id}
+                                className="group bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-3 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700"
                             >
-                                <Image
-                                    src={service.image}
-                                    alt={service.title}
-                                    fill
-                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                                <div className="absolute bottom-6 left-6 text-white">
-                                    <h3 className="text-3xl font-serif font-bold mb-1">{service.title}</h3>
-                                    <p className="text-primary-300 font-semibold">{service.price}</p>
+                                <div
+                                    className="relative h-56 overflow-hidden cursor-pointer"
+                                    onClick={() => openModal(service)}
+                                >
+                                    <Image
+                                        src={service.image}
+                                        alt={service.title}
+                                        fill
+                                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                                    <div className="absolute bottom-6 left-6 text-white">
+                                        <h3 className="text-3xl font-serif font-bold mb-1">{service.title}</h3>
+                                        <p className="text-primary-300 font-semibold">{service.price}</p>
+                                    </div>
+                                </div>
+
+                                <div className="p-8 space-y-4">
+                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">
+                                        {service.description}
+                                    </p>
+                                    <button
+                                        onClick={() => openModal(service)}
+                                        className="flex items-center gap-2 text-primary-600 dark:text-accent-400 font-bold hover:gap-4 transition-all"
+                                    >
+                                        Experience Now <ArrowRight size={18} />
+                                    </button>
                                 </div>
                             </div>
-
-                            <div className="p-8 space-y-4">
-                                <p className="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">
-                                    {service.description}
-                                </p>
-                                <button
-                                    onClick={() => openModal(service)}
-                                    className="flex items-center gap-2 text-primary-600 dark:text-accent-400 font-bold hover:gap-4 transition-all"
-                                >
-                                    Experience Now <ArrowRight size={18} />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className="mt-20 text-center">
                     <a

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 
 const FacebookIcon = () => (
@@ -14,8 +15,24 @@ const TwitterIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
 );
 
-
 export default function Contact() {
+    const [content, setContent] = useState<any>(null);
+
+    useEffect(() => {
+        fetch('/api/content')
+            .then(res => res.json())
+            .then(data => setContent(data.contact));
+    }, []);
+
+    if (!content) return <div className="py-24 bg-white dark:bg-luxury-dark animate-pulse min-h-[400px]"></div>;
+
+    const contactItems = [
+        { icon: MapPin, title: 'Visit Our Sanctuary', content: content.address },
+        { icon: Phone, title: 'Speak With Us', content: content.phone },
+        { icon: Mail, title: 'Send An Email', content: content.email },
+        { icon: Clock, title: 'Opening Hours', content: content.hours, subContent: 'Sunday: Closed' },
+    ];
+
     return (
         <section id="contact" className="py-24 bg-white dark:bg-luxury-dark transition-colors duration-500 overflow-hidden">
             <div className="container mx-auto px-6">
@@ -58,7 +75,7 @@ export default function Contact() {
                                     type="tel"
                                     required
                                     className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="+20 XXX XXX XXXX"
+                                    placeholder={content.phone}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -83,12 +100,7 @@ export default function Contact() {
                     {/* Contact Info & Socials */}
                     <div className="flex flex-col justify-between py-4">
                         <div className="space-y-10">
-                            {[
-                                { icon: MapPin, title: 'Visit Our Sanctuary', content: '123 Beauty Street, Luxury District' },
-                                { icon: Phone, title: 'Speak With Us', content: '+20 XXX XXX XXXX' },
-                                { icon: Mail, title: 'Send An Email', content: 'hello@emabeautylounge.com' },
-                                { icon: Clock, title: 'Opening Hours', content: 'Mon - Sat: 9:00 AM - 8:00 PM', subContent: 'Sunday: Closed' },
-                            ].map((item, idx) => (
+                            {contactItems.map((item, idx) => (
                                 <div key={idx} className="flex gap-6 group">
                                     <div className="w-14 h-14 shrink-0 bg-primary-100 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center text-primary-600 dark:text-accent-400 group-hover:bg-primary-500 group-hover:text-white transition-all duration-300">
                                         <item.icon size={26} />
@@ -109,13 +121,13 @@ export default function Contact() {
                             </h3>
                             <div className="flex justify-center lg:justify-start gap-4">
                                 {[
-                                    { Icon: FacebookIcon, label: 'Facebook' },
-                                    { Icon: InstagramIcon, label: 'Instagram' },
-                                    { Icon: TwitterIcon, label: 'Twitter' },
+                                    { Icon: FacebookIcon, label: 'Facebook', url: content.facebook },
+                                    { Icon: InstagramIcon, label: 'Instagram', url: content.instagram },
+                                    { Icon: TwitterIcon, label: 'Twitter', url: content.twitter },
                                 ].map((social, i) => (
                                     <a
                                         key={i}
-                                        href="#"
+                                        href={social.url}
                                         className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-primary-500 hover:text-white hover:border-primary-500 transform hover:-translate-y-2 transition-all duration-300 shadow-sm"
                                     >
                                         <social.Icon />
