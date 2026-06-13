@@ -13,6 +13,7 @@ interface ServiceModalProps {
         price: string;
         description: string;
         image: string;
+        items?: { id: string; name: string; price: string; }[];
     } | null;
 }
 
@@ -82,6 +83,22 @@ export default function ServiceModal({ isOpen, onClose, service }: ServiceModalP
                                 {service.description}
                             </p>
                         </div>
+
+                        {service.items && service.items.length > 0 && (
+                            <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-primary-500">
+                                    Service Details
+                                </h3>
+                                <div className="space-y-3">
+                                    {service.items.map((item) => (
+                                        <div key={item.id} className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-700 dark:text-gray-300 font-medium">{item.name}</span>
+                                            <span className="text-primary-500 font-bold font-mono">{item.price}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="pt-6 space-y-4">
                             <a

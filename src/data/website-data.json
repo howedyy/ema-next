@@ -34,21 +34,24 @@
       "title": "Lashes",
       "price": "Starting from $50",
       "description": "Enhance your natural beauty with our professional lash extensions and treatments.",
-      "image": "/FB_IMG_(4).jpg"
+      "image": "/FB_IMG_(4).jpg",
+      "items": []
     },
     {
       "id": "nails",
       "title": "Nails",
       "price": "Starting from $35",
       "description": "Indulge in luxurious manicures and pedicures with our expert nail care services.",
-      "image": "/FB_IMG_(5).jpg"
+      "image": "/FB_IMG_(5).jpg",
+      "items": []
     },
     {
       "id": "skincare",
       "title": "Skincare",
       "price": "Starting from $65",
       "description": "Rejuvenate your skin with our premium facial treatments and skincare solutions.",
-      "image": "/FB_IMG_(3).jpg"
+      "image": "/FB_IMG_(3).jpg",
+      "items": []
     }
   ],
   "contact": {
