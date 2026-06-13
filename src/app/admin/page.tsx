@@ -69,6 +69,95 @@ export default function AdminPage() {
         setData({ ...data, services: newServices });
     };
 
+    const addService = () => {
+        const newId = `service-${Date.now()}`;
+        const newService = {
+            id: newId,
+            title: 'New Service',
+            price: 'Starting from $0',
+            description: 'New service description goes here.',
+            image: '/FB_IMG_(3).jpg',
+            items: []
+        };
+        setData({
+            ...data,
+            services: [...data.services, newService]
+        });
+    };
+
+    const removeService = (id: string) => {
+        if (confirm('Are you sure you want to delete this service?')) {
+            setData({
+                ...data,
+                services: data.services.filter((s: any) => s.id !== id)
+            });
+        }
+    };
+
+    const addServiceItem = (serviceId: string) => {
+        const newServices = data.services.map((s: any) => {
+            if (s.id === serviceId) {
+                const items = s.items || [];
+                return {
+                    ...s,
+                    items: [...items, { id: Date.now().toString(), name: 'Sub-service name', price: '$0' }]
+                };
+            }
+            return s;
+        });
+        setData({ ...data, services: newServices });
+    };
+
+    const updateServiceItem = (serviceId: string, itemId: string, field: string, value: string) => {
+        const newServices = data.services.map((s: any) => {
+            if (s.id === serviceId) {
+                const items = s.items.map((item: any) =>
+                    item.id === itemId ? { ...item, [field]: value } : item
+                );
+                return { ...s, items };
+            }
+            return s;
+        });
+        setData({ ...data, services: newServices });
+    };
+
+    const removeServiceItem = (serviceId: string, itemId: string) => {
+        const newServices = data.services.map((s: any) => {
+            if (s.id === serviceId) {
+                const items = s.items.filter((item: any) => item.id !== itemId);
+                return { ...s, items };
+            }
+            return s;
+        });
+        setData({ ...data, services: newServices });
+    };
+
+    const handleImageUpload = async (file: File, section: string, field?: string, serviceId?: string) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await res.json();
+            if (result.path) {
+                if (serviceId) {
+                    const newServices = data.services.map((s: any) =>
+                        s.id === serviceId ? { ...s, image: result.path } : s
+                    );
+                    setData({ ...data, services: newServices });
+                } else if (section && field) {
+                    updateField(section, field, result.path);
+                }
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Upload failed. Please try again.');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
             <div className="max-w-6xl mx-auto">
@@ -134,6 +223,26 @@ export default function AdminPage() {
                                         className="w-full px-6 py-4 rounded-xl border dark:border-gray-700 dark:bg-gray-800 outline-none focus:ring-2 focus:ring-primary-500"
                                     />
                                 </div>
+                                <div className="space-y-4">
+                                    <label className="block text-sm font-bold text-gray-500">HERO IMAGE</label>
+                                    <div className="flex gap-4 items-center">
+                                        <input
+                                            type="text"
+                                            value={data.hero.image}
+                                            onChange={(e) => updateField('hero', 'image', e.target.value)}
+                                            className="flex-1 px-6 py-4 rounded-xl border dark:border-gray-700 dark:bg-gray-800"
+                                        />
+                                        <label className="cursor-pointer px-6 py-4 bg-gray-100 dark:bg-gray-800 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                                            <Plus size={20} /> Attach
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'hero', 'image')}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -186,34 +295,118 @@ export default function AdminPage() {
                             <div className="space-y-8 animate-fadeIn">
                                 <div className="flex justify-between items-center">
                                     <h2 className="text-2xl font-bold dark:text-white">Service Menu</h2>
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg font-bold text-sm">
+                                    <button
+                                        onClick={addService}
+                                        className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-bold text-sm hover:bg-primary-700 transition-colors"
+                                    >
                                         <Plus size={16} /> Add Service
                                     </button>
                                 </div>
-                                <div className="space-y-6">
+                                <div className="space-y-12">
                                     {data.services.map((service: any) => (
-                                        <div key={service.id} className="p-6 border dark:border-gray-700 rounded-2xl bg-gray-50 dark:bg-gray-800/50 relative group">
-                                            <div className="grid md:grid-cols-2 gap-4">
-                                                <input
-                                                    type="text"
-                                                    value={service.title}
-                                                    onChange={(e) => updateService(service.id, 'title', e.target.value)}
-                                                    className="font-bold text-lg bg-transparent border-b border-transparent focus:border-primary-500 outline-none"
-                                                />
-                                                <input
-                                                    type="text"
-                                                    value={service.price}
-                                                    onChange={(e) => updateService(service.id, 'price', e.target.value)}
-                                                    className="text-primary-500 font-bold bg-transparent border-b border-transparent focus:border-primary-500 outline-none text-right"
+                                        <div key={service.id} className="p-8 border dark:border-gray-700 rounded-3xl bg-gray-50 dark:bg-gray-800/50 relative group border-l-4 border-l-primary-500">
+                                            <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-primary-500 uppercase tracking-widest pl-1">Service Title</label>
+                                                    <input
+                                                        type="text"
+                                                        value={service.title}
+                                                        onChange={(e) => updateService(service.id, 'title', e.target.value)}
+                                                        className="w-full bg-white dark:bg-gray-900 px-4 py-3 rounded-xl border-2 border-transparent focus:border-primary-500 outline-none transition-all font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-primary-500 uppercase tracking-widest pl-1 text-right block">Starting Price</label>
+                                                    <input
+                                                        type="text"
+                                                        value={service.price}
+                                                        onChange={(e) => updateService(service.id, 'price', e.target.value)}
+                                                        className="w-full bg-white dark:bg-gray-900 px-4 py-3 rounded-xl border-2 border-transparent focus:border-primary-500 outline-none transition-all text-right font-mono"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2 mb-6">
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Short Description</label>
+                                                <textarea
+                                                    value={service.description}
+                                                    onChange={(e) => updateService(service.id, 'description', e.target.value)}
+                                                    className="w-full bg-white dark:bg-gray-900 px-4 py-3 rounded-xl border-2 border-transparent focus:border-primary-500 outline-none transition-all text-gray-600 dark:text-gray-400 resize-none min-h-[80px]"
                                                 />
                                             </div>
-                                            <textarea
-                                                value={service.description}
-                                                onChange={(e) => updateService(service.id, 'description', e.target.value)}
-                                                className="w-full mt-4 bg-transparent text-gray-500 dark:text-gray-400 outline-none resize-none"
-                                            />
-                                            <button className="absolute -top-3 -right-3 w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                                <Trash2 size={14} />
+
+                                            <div className="space-y-2 mb-6">
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Image Path</label>
+                                                <div className="flex gap-3">
+                                                    <input
+                                                        type="text"
+                                                        value={service.image}
+                                                        onChange={(e) => updateService(service.id, 'image', e.target.value)}
+                                                        className="flex-1 bg-white dark:bg-gray-900 px-4 py-3 rounded-xl border-2 border-transparent focus:border-primary-500 outline-none transition-all text-gray-500 text-sm"
+                                                    />
+                                                    <label className="cursor-pointer px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all text-xs">
+                                                        <ImageIcon size={14} /> Attach
+                                                        <input
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept="image/*"
+                                                            onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'services', '', service.id)}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {/* Sub-items (What's Inside) */}
+                                            <div className="space-y-4 bg-white/50 dark:bg-black/20 p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">Service Items & Details</h4>
+                                                    <button
+                                                        onClick={() => addServiceItem(service.id)}
+                                                        className="text-xs font-bold text-primary-500 hover:text-primary-600 flex items-center gap-1"
+                                                    >
+                                                        <Plus size={14} /> Add Item
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {(service.items || []).map((item: any) => (
+                                                        <div key={item.id} className="flex gap-4 items-end animate-slideDown">
+                                                            <div className="flex-1 space-y-1">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Item name (e.g. Full Face)"
+                                                                    value={item.name}
+                                                                    onChange={(e) => updateServiceItem(service.id, item.id, 'name', e.target.value)}
+                                                                    className="w-full bg-transparent border-b border-gray-200 dark:border-gray-700 py-1 outline-none focus:border-primary-500 text-sm"
+                                                                />
+                                                            </div>
+                                                            <div className="w-24 space-y-1">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Price"
+                                                                    value={item.price}
+                                                                    onChange={(e) => updateServiceItem(service.id, item.id, 'price', e.target.value)}
+                                                                    className="w-full bg-transparent border-b border-gray-200 dark:border-gray-700 py-1 outline-none focus:border-primary-500 text-sm font-mono text-right"
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                onClick={() => removeServiceItem(service.id, item.id)}
+                                                                className="text-gray-300 hover:text-red-500 mb-1"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    {(!service.items || service.items.length === 0) && (
+                                                        <p className="text-xs text-gray-400 italic py-2 text-center">No detailed items added yet</p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => removeService(service.id)}
+                                                className="absolute -top-3 -right-3 w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:bg-red-500 hover:text-white"
+                                            >
+                                                <Trash2 size={18} />
                                             </button>
                                         </div>
                                     ))}
